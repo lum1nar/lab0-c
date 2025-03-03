@@ -24,12 +24,32 @@ void q_free(struct list_head *head)
     if (!head)
         return;
 
-    struct list_head *li;
 
-    list_for_each (li, head) {
-        free(li);
-        li = NULL;
+
+    if (head->next == head) {
+        free(head);
+        return;
     }
+
+    element_t *entry = NULL, *safe = NULL;
+
+    list_for_each_entry_safe (entry, safe, head, list) {
+        if (entry->value)
+            free(entry->value);
+
+        struct list_head *next = (&entry->list)->next;
+        struct list_head *prev = (&entry->list)->prev;
+
+        next->prev = prev;
+        prev->next = next;
+
+        (&entry->list)->next = NULL;
+        (&entry->list)->prev = NULL;
+
+        free(entry);
+    }
+    free(head);
+    return;
 }
 
 /* Insert an element at head of queue */
