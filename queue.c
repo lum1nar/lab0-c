@@ -21,9 +21,7 @@ void q_free(struct list_head *head)
     if (!head)
         return;
 
-
-
-    if (head->next == head) {
+    if (list_empty(head)) {
         free(head);
         return;
     }
@@ -31,20 +29,11 @@ void q_free(struct list_head *head)
     element_t *entry = NULL, *safe = NULL;
 
     list_for_each_entry_safe (entry, safe, head, list) {
-        if (entry->value)
-            free(entry->value);
-
-        struct list_head *next = (&entry->list)->next;
-        struct list_head *prev = (&entry->list)->prev;
-
-        next->prev = prev;
-        prev->next = next;
-
-        (&entry->list)->next = NULL;
-        (&entry->list)->prev = NULL;
-
+        free(entry->value);
+        list_del_init(&entry->list);
         free(entry);
     }
+
     free(head);
     return;
 }
