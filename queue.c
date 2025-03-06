@@ -10,12 +10,9 @@ struct list_head *q_new()
     struct list_head *head =
         (struct list_head *) malloc(sizeof(struct list_head));
 
-    head->prev = head;
-    head->next = head;
+    INIT_LIST_HEAD(head);
 
     return head;
-
-    return NULL;
 }
 
 /* Free all storage used by queue */
