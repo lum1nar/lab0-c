@@ -43,16 +43,10 @@ bool q_insert_head(struct list_head *head, char *s)
 {
     element_t *ele = (element_t *) malloc(sizeof(element_t));
 
-
     ele->value = malloc(strlen(s) + 1);
     memcpy(ele->value, s, strlen(s) + 1);
 
-    struct list_head *next = head->next, *node = &ele->list;
-
-    next->prev = node;
-    node->next = next;
-    node->prev = head;
-    head->next = node;
+    list_add(&ele->list, head);
 
     return true;
 }
@@ -62,16 +56,10 @@ bool q_insert_tail(struct list_head *head, char *s)
 {
     element_t *ele = (element_t *) malloc(sizeof(element_t));
 
-
     ele->value = malloc(strlen(s) + 1);
     memcpy(ele->value, s, strlen(s) + 1);
 
-    struct list_head *prev = head->prev, *node = &ele->list;
-
-    prev->next = node;
-    node->prev = prev;
-    head->prev = node;
-    node->next = head;
+    list_add_tail(&ele->list, head);
 
     return true;
 }
