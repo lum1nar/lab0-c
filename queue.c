@@ -109,6 +109,9 @@ int q_size(struct list_head *head)
 /* Delete the middle node in queue */
 bool q_delete_mid(struct list_head *head)
 {
+    if (!head || list_empty(head))
+        return false;
+
     struct list_head *fast = head->next, *slow;
 
     list_for_each (slow, head) {
@@ -132,7 +135,37 @@ bool q_delete_mid(struct list_head *head)
 /* Delete all nodes that have duplicate string */
 bool q_delete_dup(struct list_head *head)
 {
-    // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
+    if (!head || list_empty(head))
+        return false;
+
+    struct list_head *slow, *fast;
+
+    for (slow = head->next, fast = slow->next; slow != head;
+         slow = fast, fast = slow->next) {
+        fast = slow->next;
+
+        while ((fast) != head &&
+               !strcmp(list_entry(fast, element_t, list)->value,
+                       list_entry(slow, element_t, list)->value))
+            fast = fast->next;
+
+        if (slow->next == fast)
+            continue;
+
+
+        for (struct list_head *tmp = slow, *next = slow->next; tmp != fast;
+             tmp = next, next = tmp->next) {
+            element_t *ele = list_entry(tmp, element_t, list);
+
+            list_del_init(&ele->list);
+
+            if (ele->value)
+                free(ele->value);
+
+            free(ele);
+        }
+    }
+
     return true;
 }
 
