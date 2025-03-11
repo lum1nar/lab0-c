@@ -354,7 +354,8 @@ int q_ascend(struct list_head *head)
     if (list_is_singular(head))
         return 1;
 
-    const struct list_head *tail = head->prev, *li = head->prev;
+    /* cppcheck-suppress constVariablePointer */
+    struct list_head *tail = head->prev, *li = head->prev;
 
     int count = 0;
 
@@ -388,7 +389,8 @@ int q_descend(struct list_head *head)
     if (list_is_singular(head))
         return 1;
 
-    const struct list_head *tail = head->prev, *li = head->prev;
+    /* cppcheck-suppress constVariablePointer */
+    struct list_head *tail = head->prev, *li = head->prev;
 
     int count = 0;
 
