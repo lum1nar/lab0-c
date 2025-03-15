@@ -22,7 +22,7 @@ void q_free(struct list_head *head)
 
     element_t *entry = NULL, *safe = NULL;
 
-    list_for_each_entry_safe (entry, safe, head, list) {
+    list_for_each_entry_safe(entry, safe, head, list) {
         free(entry->value);
         list_del_init(&entry->list);
         free(entry);
@@ -100,7 +100,7 @@ int q_size(struct list_head *head)
     int len = 0;
     struct list_head *li;
 
-    list_for_each (li, head)
+    list_for_each(li, head)
         len++;
     return len;
 }
@@ -113,7 +113,7 @@ bool q_delete_mid(struct list_head *head)
 
     struct list_head *fast = head->next, *slow;
 
-    list_for_each (slow, head) {
+    list_for_each(slow, head) {
         if (fast->next == head || fast == head)
             break;
         fast = fast->next->next;
