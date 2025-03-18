@@ -80,18 +80,7 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 /* Remove an element from tail of queue */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    if (!head || list_empty(head)) {
-        return NULL;
-    }
-
-    element_t *ele = list_entry(head->prev, element_t, list);
-
-    if (sp && ele->value)
-        memcpy(sp, ele->value, bufsize);
-
-    list_del_init(&ele->list);
-
-    return ele;
+    return q_remove_head(head->prev->prev, sp, bufsize);
 }
 
 /* Return number of elements in queue */
