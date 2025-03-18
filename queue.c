@@ -126,34 +126,23 @@ bool q_delete_mid(struct list_head *head)
 /* Delete all nodes that have duplicate string */
 bool q_delete_dup(struct list_head *head)
 {
-    if (!head || list_empty(head))
+    if (!head || list_empty(head) || list_is_singular(head))
         return false;
 
-    struct list_head *slow, *fast;
+    element_t *L, *R;
+    bool has_dup = false;
 
-    for (slow = head->next, fast = slow->next; slow != head;
-         slow = fast, fast = slow->next) {
-        fast = slow->next;
-
-        while ((fast) != head &&
-               !strcmp(list_entry(fast, element_t, list)->value,
-                       list_entry(slow, element_t, list)->value))
-            fast = fast->next;
-
-        if (slow->next == fast)
-            continue;
-
-
-        for (struct list_head *tmp = slow, *next = slow->next; tmp != fast;
-             tmp = next, next = tmp->next) {
-            element_t *ele = list_entry(tmp, element_t, list);
-
-            list_del_init(&ele->list);
-
-            if (ele->value)
-                free(ele->value);
-
-            free(ele);
+    list_for_each_entry_safe(L, R, head, list) {
+        if (&R->list != head && !strcmp(L->value, R->value)) {
+            has_dup = true;
+            list_del_init(&L->list);
+            free(L->value);
+            free(L);
+        } else if (has_dup) {
+            has_dup = false;
+            list_del_init(&L->list);
+            free(L->value);
+            free(L);
         }
     }
 
