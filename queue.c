@@ -293,29 +293,24 @@ int q_ascend(struct list_head *head)
     if (list_is_singular(head))
         return 1;
 
-    /* cppcheck-suppress constVariablePointer */
-    struct list_head *tail = head->prev, *li = head->prev;
+    struct list_head *R = head->prev, *L = head->prev->prev;
+    element_t *delete;
 
-    int count = 0;
-
-    while (li != head) {
-        struct list_head *prev = li->prev;
-        if (strcmp(list_entry(li, element_t, list)->value,
-                   list_entry(tail, element_t, list)->value) > 0) {
-            list_del_init(li);
-            element_t *ele = list_entry(li, element_t, list);
-            if (ele->value)
-                free(ele->value);
-            free(li);
-            //           free(li);
+    while (L != head) {
+        if (strcmp(list_entry(R, element_t, list)->value,
+                   list_entry(L, element_t, list)->value) > 0) {
+            L = L->prev;
+            R = R->prev;
         } else {
-            tail = li;
-            count++;
+            delete = list_entry(L, element_t, list);
+            list_del_init(L);
+            free(delete->value);
+            free(delete);
+            L = R->prev;
         }
-        li = prev;
     }
 
-    return count;
+    return q_size(head);
 }
 
 /* Remove every node which has a node with a strictly greater value anywhere to
@@ -328,25 +323,24 @@ int q_descend(struct list_head *head)
     if (list_is_singular(head))
         return 1;
 
-    /* cppcheck-suppress constVariablePointer */
-    struct list_head *tail = head->prev, *li = head->prev;
+    struct list_head *R = head->prev, *L = head->prev->prev;
+    element_t *delete;
 
-    int count = 0;
-
-    while (li != head) {
-        struct list_head *prev = li->prev;
-        if (strcmp(list_entry(li, element_t, list)->value,
-                   list_entry(tail, element_t, list)->value) < 0) {
-            list_del_init(li);
+    while (L != head) {
+        if (strcmp(list_entry(R, element_t, list)->value,
+                   list_entry(L, element_t, list)->value) < 0) {
+            L = L->prev;
+            R = R->prev;
         } else {
-            tail = li;
-            count++;
+            delete = list_entry(L, element_t, list);
+            list_del_init(L);
+            free(delete->value);
+            free(delete);
+            L = R->prev;
         }
-        li = prev;
     }
 
-    //   q_reverse(head);
-    return count;
+    return q_size(head);
 }
 
 /* Merge all the queues into one sorted queue, which is in ascending/descending
