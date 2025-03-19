@@ -196,44 +196,23 @@ void q_reverseK(struct list_head *head, int k)
     if (!head || list_empty(head) || list_is_singular(head) || k == 1)
         return;
 
-    struct list_head *cur = head->next, *ghead = NULL, *gtail = NULL;
-    struct list_head *ptail = head;
+    LIST_HEAD(rev_list);
+    LIST_HEAD(new_head);
+    struct list_head *cut;
+    int group = q_size(head) / k;
 
-    while (cur != head) {
-        struct list_head *begin = cur;
+    while (group--) {
         int count = 0;
-
-        while (cur != head) {
+        list_for_each(cut, head) {
             count++;
-            cur = cur->next;
             if (count == k)
                 break;
         }
-
-        if (count != k)
-            break;
-
-        ghead = begin;
-        gtail = cur->prev;
-
-        struct list_head *temp, *it = ghead;
-
-        while (it != cur) {
-            temp = it->next;
-            it->next = it->prev;
-            it->prev = temp;
-            it = temp;
-        }
-
-        ptail->next = gtail;
-        gtail->prev = ptail;
-
-        ghead->next = cur;
-        cur->prev = ghead;
-
-        ptail = ghead;
+        list_cut_position(&rev_list, head, cut);
+        q_reverse(&rev_list);
+        list_splice_tail_init(&rev_list, &new_head);
     }
-
+    list_splice_init(&new_head, head);
 
     return;
 }
