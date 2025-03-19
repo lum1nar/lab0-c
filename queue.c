@@ -215,7 +215,7 @@ struct list_head *q_mergelists(struct list_head *list1, struct list_head *list2)
 
     struct list_head *sorted = NULL;
 
-    if (strcmp(l->value, r->value) < 0) {
+    if (strcmp(l->value, r->value) <= 0) {
         sorted = list1;
         sorted->prev = NULL;
         sorted->next = q_mergelists(list1->next, list2);
@@ -269,9 +269,9 @@ void q_sort(struct list_head *head, bool descend)
     listh = q_mergesort(listh);
     listt = listh;
 
-    while (listt->next) {
+    while (listt->next)
         listt = listt->next;
-    }
+
 
     head->next = listh;
     head->prev = listt;
