@@ -204,55 +204,31 @@ void q_reverseK(struct list_head *head, int k)
 
 struct list_head *q_mergelists(struct list_head *list1, struct list_head *list2)
 {
-    if (!list1)
-        return list2;
+    struct list_head *new_head = NULL, **indirect = &new_head;
 
-    if (!list2)
-        return list1;
-
-    const element_t *l = list_entry(list1, element_t, list);
-    const element_t *r = list_entry(list2, element_t, list);
-
-    struct list_head *sorted = NULL;
-
-    if (strcmp(l->value, r->value) <= 0) {
-        sorted = list1;
-        sorted->prev = NULL;
-        sorted->next = q_mergelists(list1->next, list2);
-        if (sorted->next)
-            sorted->next->prev = sorted;
-    } else {
-        sorted = list2;
-        sorted->prev = NULL;
-        sorted->next = q_mergelists(list1, list2->next);
-        if (sorted->next)
-            sorted->next->prev = sorted;
+    while (true) {
+        if (!list1) {
+            *indirect = list2;
+            break;
+        }
+        if (!list2) {
+            *indirect = list1;
+            break;
+        }
+        const char *str1 = list_entry(list1, element_t, list)->value,
+                   *str2 = list_entry(list2, element_t, list)->value;
+        if (strcmp(str1, str2) < 0) {
+            *indirect = list1;
+            list1 = list1->next;
+        } else {
+            *indirect = list2;
+            list2 = list2->next;
+        }
+        indirect = &(*indirect)->next;
     }
-    return sorted;
+    return new_head;
 }
 
-
-struct list_head *q_mergesort(struct list_head *head)
-{
-    if (!head || list_empty(head) || list_is_singular(head))
-        return head;
-
-    struct list_head *slow = head, *fast = head;
-
-    while (fast->next && fast->next->next) {
-        slow = slow->next;
-        fast = fast->next->next;
-    }
-
-    struct list_head *list2 = slow->next;
-
-    slow->next = NULL;
-    list2->prev = NULL;
-
-    struct list_head *left = q_mergesort(head), *right = q_mergesort(list2);
-
-    return q_mergelists(left, right);
-}
 
 
 /* Sort elements of queue in ascending/descending order */
@@ -261,25 +237,41 @@ void q_sort(struct list_head *head, bool descend)
     if (!head || list_empty(head) || list_is_singular(head))
         return;
 
-    struct list_head *listh = head->next, *listt = head->prev;
+    struct list_head *stack[32], *node, *safe;
+    unsigned int size[32];
 
-    listh->prev = NULL;
-    listt->next = NULL;
+    int it = 0;
 
-    listh = q_mergesort(listh);
-    listt = listh;
+    list_for_each_safe(node, safe, head) {
+        node->next = NULL;
+        stack[it++] = node;
+        size[it - 1] = 1;
+        while ((it > 1) && (size[it - 1] == size[it - 2])) {
+            stack[it - 2] = q_mergelists(stack[it - 1], stack[it - 2]);
+            size[it - 2] *= 2;
+            it--;
+        }
+    }
 
-    while (listt->next)
-        listt = listt->next;
+    it--;
+    while (it >= 1) {
+        stack[it - 1] = q_mergelists(stack[it], stack[it - 1]);
+        it--;
+    }
 
+    INIT_LIST_HEAD(head);
+    node = stack[0];
+    while (node) {
+        safe = node->next;
+        list_add_tail(node, head);
+        node = safe;
+    }
 
-    head->next = listh;
-    head->prev = listt;
-    listh->prev = head;
-    listt->next = head;
-
-    if (descend)
+    if (descend) {
         q_reverse(head);
+    }
+
+    return;
 }
 
 
