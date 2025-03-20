@@ -365,8 +365,4 @@ int q_merge(struct list_head *head, bool descend)
     q_sort(merged_queue, descend);
 
     return merged->size;
-
-
-
-    return 0;
 }
